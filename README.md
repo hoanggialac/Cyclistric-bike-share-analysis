@@ -99,8 +99,8 @@ Insights — Duration distribution, bike preference, conversion funnel
 
 🚀 How to Reproduce
 bash# 1. Clone the repo
-git clone https://github.com/YOUR_USERNAME/cyclistic-analysis.git
-cd cyclistic-analysis
+git clone https://github.com/hoanggialac/cyclistic-bike-share-analysis.git
+cd cyclistic-bike-share-analysis
 
 # 2. Install dependencies
 pip install pandas numpy matplotlib seaborn
