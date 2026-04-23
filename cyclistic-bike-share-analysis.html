@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyclistic Bike Share Analysis | Portfolio</title>
+<style>
+  :root {
+    --navy:  #0F2044;
+    --blue:  #1E56A0;
+    --teal:  #0891B2;
+    --gold:  #F59E0B;
+    --white: #FFFFFF;
+    --off:   #F8FAFC;
+    --light: #E2E8F0;
+    --gray:  #64748B;
+    --dark:  #1E293B;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; color: var(--dark); background: var(--off); line-height: 1.7; }
+
+  /* NAV */
+  nav { background: var(--navy); padding: 0.75rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+  nav .logo { color: white; font-weight: 700; font-size: 1rem; letter-spacing: 2px; }
+  nav .links a { color: #CADCFC; text-decoration: none; margin-left: 1.5rem; font-size: 0.85rem; letter-spacing: 1px; transition: color 0.2s; }
+  nav .links a:hover { color: var(--teal); }
+
+  /* HERO */
+  .hero { background: var(--navy); padding: 5rem 2rem 4rem; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; top: -60px; right: -60px; width: 300px; height: 300px; border-radius: 50%; background: rgba(8,145,178,0.08); }
+  .hero::after  { content: ''; position: absolute; bottom: -40px; left: -40px; width: 200px; height: 200px; border-radius: 50%; background: rgba(245,158,11,0.06); }
+  .hero h1 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 800; color: white; letter-spacing: 6px; }
+  .hero .sub { font-size: 1.1rem; color: var(--teal); letter-spacing: 3px; margin-top: 0.3rem; text-transform: uppercase; }
+  .hero .divider { width: 80px; height: 4px; background: var(--gold); margin: 1.5rem auto; border-radius: 2px; }
+  .hero .question { font-size: 1.15rem; color: #CADCFC; font-style: italic; max-width: 600px; margin: 0 auto 2rem; }
+  .pills { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .pill { background: rgba(255,255,255,0.07); border: 1px solid var(--teal); color: white; padding: 0.4rem 1.2rem; border-radius: 999px; font-size: 0.85rem; letter-spacing: 1px; }
+
+  /* SECTION */
+  section { padding: 4.5rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-tag { display: flex; align-items: center; gap: 0.5rem; color: var(--teal); font-size: 0.8rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 0.5rem; }
+  .section-tag span { width: 30px; height: 2px; background: var(--teal); }
+  h2.section-title { font-size: clamp(1.6rem, 3vw, 2.2rem); color: var(--navy); font-weight: 800; margin-bottom: 0.5rem; }
+  .section-divider { width: 60px; height: 4px; background: var(--teal); border-radius: 2px; margin-bottom: 2rem; }
+
+  /* CARDS */
+  .card { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.07); padding: 1.8rem; border-top: 4px solid var(--teal); }
+  .card.gold-top { border-top-color: var(--gold); }
+  .card.blue-top { border-top-color: var(--blue); }
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+
+  /* KPI */
+  .kpi { background: white; border-radius: 12px; padding: 1.5rem; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .kpi .num { font-size: 2.8rem; font-weight: 800; line-height: 1; }
+  .kpi .label { font-size: 0.85rem; font-weight: 700; color: var(--navy); margin-top: 0.4rem; }
+  .kpi .sub { font-size: 0.75rem; color: var(--gray); margin-top: 0.2rem; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem; }
+  thead th { background: var(--navy); color: white; padding: 0.75rem 1rem; text-align: left; font-size: 0.8rem; letter-spacing: 1px; }
+  tbody tr:nth-child(even) { background: var(--off); }
+  tbody td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--light); }
+  tbody tr:last-child td { font-weight: 700; color: var(--blue); }
+
+  /* INSIGHT CARDS */
+  .insight-card { background: #162035; border-radius: 12px; padding: 1.5rem; border-left: 5px solid; }
+  .insight-card .icon-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+  .insight-card .ico { font-size: 1.5rem; }
+  .insight-card h3 { color: white; font-size: 1rem; font-weight: 700; }
+  .insight-card .stat { font-weight: 800; font-size: 1.1rem; margin-bottom: 0.5rem; }
+  .insight-card p { color: #CADCFC; font-size: 0.9rem; line-height: 1.6; }
+
+  /* REC CARDS */
+  .rec-card { background: white; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.07); overflow: hidden; }
+  .rec-card .rec-header { padding: 1.2rem 1.5rem; display: flex; align-items: center; gap: 1rem; }
+  .rec-card .rec-num { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 0.85rem; flex-shrink: 0; }
+  .rec-card h3 { font-size: 1rem; font-weight: 700; color: var(--navy); }
+  .rec-card .rec-basis { font-size: 0.8rem; font-style: italic; font-weight: 600; padding: 0 1.5rem; margin-bottom: 0.5rem; }
+  .rec-card .rec-body { padding: 0 1.5rem 1.5rem; font-size: 0.9rem; color: var(--dark); }
+  .rec-card .rec-impact { margin-top: 0.75rem; padding: 0.6rem 0.9rem; background: var(--off); border-radius: 8px; font-size: 0.82rem; color: var(--gray); font-style: italic; }
+  .rec-card .rec-impact strong { color: var(--navy); }
+
+  /* DARK SECTION */
+  .dark-section { background: var(--navy); color: white; }
+  .dark-section h2.section-title { color: white; }
+  .dark-section .section-divider { background: var(--gold); }
+
+  /* TWO COL */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } nav .links { display: none; } }
+
+  /* FOOTER */
+  footer { background: var(--navy); color: #CADCFC; text-align: center; padding: 2.5rem 1rem; font-size: 0.85rem; }
+  footer strong { color: var(--teal); }
+
+  /* COMPARE BAR */
+  .bar-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.6rem; font-size: 0.88rem; }
+  .bar-label { width: 90px; color: var(--gray); font-size: 0.8rem; }
+  .bar-track { flex: 1; background: var(--light); border-radius: 999px; height: 10px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 999px; transition: width 1s ease; }
+  .bar-value { width: 50px; text-align: right; font-weight: 700; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">🚲 CYCLISTIC</div>
+  <div class="links">
+    <a href="#problem">Problem</a>
+    <a href="#analysis">Analysis</a>
+    <a href="#insights">Insights</a>
+    <a href="#recommendations">Recommendations</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="sub">Portfolio Project · Business Analyst</p>
+  <h1>CYCLISTIC</h1>
+  <p class="sub" style="color:#CADCFC; letter-spacing:2px; font-size:1rem;">BIKE SHARE ANALYSIS</p>
+  <div class="divider"></div>
+  <p class="question">How do annual members and casual riders use Cyclistic bikes differently?</p>
+  <div class="pills">
+    <span class="pill">415K Rides Analyzed</span>
+    <span class="pill">April 2024</span>
+    <span class="pill">Chicago, IL</span>
+    <span class="pill">Python · SQL · Power BI · Excel</span>
+  </div>
+</div>
+
+<!-- SECTION 1: BUSINESS PROBLEM -->
+<section id="problem">
+  <div class="section-tag"><span></span> 01 <span></span></div>
+  <h2 class="section-title">Business Problem</h2>
+  <div class="section-divider"></div>
+
+  <div class="two-col">
+    <div class="card">
+      <h3 style="color:var(--blue); font-size:1rem; margin-bottom:1rem;">🏢 Company Context</h3>
+      <p style="color:var(--gray); margin-bottom:1rem;">Cyclistic is a Chicago-based bike-share company operating:</p>
+      <p style="margin-bottom:0.5rem;"><strong style="color:var(--blue); font-size:1.4rem;">5,800+</strong> bicycles across the city</p>
+      <p style="margin-bottom:0.5rem;"><strong style="color:var(--blue); font-size:1.4rem;">600+</strong> docking stations</p>
+      <p style="margin-top:0.75rem;"><strong>2 rider types:</strong> Casual riders vs Annual Members</p>
+    </div>
+    <div class="card" style="background:var(--navy); border-top-color:var(--gold);">
+      <h3 style="color:var(--gold); font-size:0.85rem; letter-spacing:2px; text-transform:uppercase; margin-bottom:1rem;">The Strategic Question</h3>
+      <p style="color:white; font-size:1.15rem; font-weight:700; font-style:italic; margin-bottom:1rem;">How can Cyclistic convert casual riders into annual members?</p>
+      <hr style="border-color:var(--teal); margin:1rem 0;">
+      <p style="color:#CADCFC; font-size:0.9rem;">Annual members generate significantly more revenue than casual riders — making conversion the #1 growth lever for the marketing team.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:1.5rem; border-top-color:var(--teal); display:flex; align-items:flex-start; gap:1rem;">
+    <div style="font-size:1.8rem; flex-shrink:0;">🎯</div>
+    <div>
+      <strong style="color:var(--navy);">Objective:</strong>
+      <span style="color:var(--dark);"> Identify behavioural differences between rider types using April 2024 trip data and translate findings into a data-driven marketing strategy that can convert casual riders into annual members.</span>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: DATA ANALYSIS -->
+<section id="analysis" style="background:white; max-width:100%; padding:4.5rem 2rem;">
+<div style="max-width:1100px; margin:0 auto;">
+  <div class="section-tag"><span></span> 02 <span></span></div>
+  <h2 class="section-title">Data Analysis</h2>
+  <div class="section-divider"></div>
+
+  <!-- KPIs -->
+  <div class="grid-4" style="margin-bottom:2.5rem;">
+    <div class="kpi" style="border-top:4px solid var(--navy);">
+      <div class="num" style="color:var(--navy);">414K</div>
+      <div class="label">Clean Rides</div>
+      <div class="sub">After removing 705 invalid records</div>
+    </div>
+    <div class="kpi" style="border-top:4px solid var(--blue);">
+      <div class="num" style="color:var(--blue);">68.3%</div>
+      <div class="label">Annual Members</div>
+      <div class="sub">Of all April 2024 rides</div>
+    </div>
+    <div class="kpi" style="border-top:4px solid var(--gold);">
+      <div class="num" style="color:var(--gold);">31.7%</div>
+      <div class="label">Casual Riders</div>
+      <div class="sub">Significant conversion target</div>
+    </div>
+    <div class="kpi" style="border-top:4px solid var(--teal);">
+      <div class="num" style="color:var(--teal);">2×</div>
+      <div class="label">Longer Rides (Casual)</div>
+      <div class="sub">21 min vs 12 min avg</div>
+    </div>
+  </div>
+
+  <!-- Cleaning table -->
+  <h3 style="color:var(--navy); margin-bottom:0.5rem;">Data Cleaning Summary</h3>
+  <table>
+    <thead><tr><th>Issue</th><th>Action Taken</th><th>Rows Affected</th></tr></thead>
+    <tbody>
+      <tr><td>Negative ride duration</td><td>Removed (data entry errors)</td><td>188 rows</td></tr>
+      <tr><td>Duration &gt; 24 hours</td><td>Removed (likely docking errors)</td><td>517 rows</td></tr>
+      <tr><td>Missing station names</td><td>Flagged, kept (lat/lng still valid)</td><td>~19% of rows</td></tr>
+      <tr><td><strong>Final clean dataset</strong></td><td><strong>Ready for analysis</strong></td><td><strong>414,320 rows</strong></td></tr>
+    </tbody>
+  </table>
+
+  <!-- Bar comparisons -->
+  <div class="two-col" style="margin-top:2.5rem;">
+    <div>
+      <h3 style="color:var(--navy); margin-bottom:1rem;">Day of Week Distribution</h3>
+      <p style="color:var(--gray); font-size:0.85rem; margin-bottom:1rem;">Casual % on weekends vs weekdays</p>
+      <div class="bar-row"><div class="bar-label">Saturday</div><div class="bar-track"><div class="bar-fill" style="width:44%; background:var(--gold);"></div></div><div class="bar-value" style="color:var(--gold);">44%</div></div>
+      <div class="bar-row"><div class="bar-label">Sunday</div><div class="bar-track"><div class="bar-fill" style="width:45%; background:var(--gold);"></div></div><div class="bar-value" style="color:var(--gold);">45%</div></div>
+      <div class="bar-row"><div class="bar-label">Friday</div><div class="bar-track"><div class="bar-fill" style="width:29%; background:var(--blue);"></div></div><div class="bar-value" style="color:var(--blue);">29%</div></div>
+      <div class="bar-row"><div class="bar-label">Monday</div><div class="bar-track"><div class="bar-fill" style="width:29%; background:var(--blue);"></div></div><div class="bar-value" style="color:var(--blue);">29%</div></div>
+      <div class="bar-row"><div class="bar-label">Tuesday</div><div class="bar-track"><div class="bar-fill" style="width:26%; background:var(--blue);"></div></div><div class="bar-value" style="color:var(--blue);">26%</div></div>
+    </div>
+    <div>
+      <h3 style="color:var(--navy); margin-bottom:1rem;">Ride Duration by Bike Type</h3>
+      <p style="color:var(--gray); font-size:0.85rem; margin-bottom:1rem;">Average minutes per ride</p>
+      <div class="bar-row"><div class="bar-label" style="width:130px;">Casual Classic</div><div class="bar-track"><div class="bar-fill" style="width:82%; background:var(--gold);"></div></div><div class="bar-value" style="color:var(--gold);">41 min</div></div>
+      <div class="bar-row"><div class="bar-label" style="width:130px;">Member Classic</div><div class="bar-track"><div class="bar-fill" style="width:29%; background:var(--blue);"></div></div><div class="bar-value" style="color:var(--blue);">15 min</div></div>
+      <div class="bar-row"><div class="bar-label" style="width:130px;">Casual Electric</div><div class="bar-track"><div class="bar-fill" style="width:29%; background:var(--gold);"></div></div><div class="bar-value" style="color:var(--gold);">14 min</div></div>
+      <div class="bar-row"><div class="bar-label" style="width:130px;">Member Electric</div><div class="bar-track"><div class="bar-fill" style="width:21%; background:var(--blue);"></div></div><div class="bar-value" style="color:var(--blue);">10 min</div></div>
+    </div>
+  </div>
+
+  <!-- Top stations -->
+  <h3 style="color:var(--navy); margin:2.5rem 0 0.5rem;">Top Casual Rider Stations</h3>
+  <table>
+    <thead><tr><th>Station</th><th>Casual Rides</th><th>Member Rides</th><th>Casual %</th></tr></thead>
+    <tbody>
+      <tr><td>Streeter Dr &amp; Grand Ave</td><td>3,319</td><td>1,030</td><td style="color:var(--gold); font-weight:700;">76%</td></tr>
+      <tr><td>DuSable Lake Shore Dr &amp; Monroe St</td><td>2,482</td><td>695</td><td style="color:var(--gold); font-weight:700;">78%</td></tr>
+      <tr><td>Michigan Ave &amp; Oak St</td><td>1,319</td><td>1,051</td><td>56%</td></tr>
+      <tr><td>Clark St &amp; Elm St</td><td>586</td><td>1,806</td><td>25%</td></tr>
+      <tr><td>Wells St &amp; Concord Ln</td><td>645</td><td>1,537</td><td>30%</td></tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<!-- SECTION 3: INSIGHTS (dark) -->
+<div class="dark-section" style="padding:0;">
+<section id="insights">
+  <div class="section-tag" style="color:var(--teal);"><span style="background:var(--teal);"></span> 03 <span style="background:var(--teal);"></span></div>
+  <h2 class="section-title">Key Insights</h2>
+  <div class="section-divider"></div>
+
+  <div class="grid-2">
+    <div class="insight-card" style="border-left-color:var(--gold);">
+      <div class="icon-row"><span class="ico">⏱️</span><h3>Ride Duration Gap</h3></div>
+      <div class="stat" style="color:var(--gold);">21 min (casual) vs 12 min (member)</div>
+      <p>Casual riders take nearly 2× longer per trip. Classic bike casual avg: 41 min — a clear signal of leisure and recreational use, not commuting.</p>
+    </div>
+    <div class="insight-card" style="border-left-color:var(--teal);">
+      <div class="icon-row"><span class="ico">📅</span><h3>Weekend Concentration</h3></div>
+      <div class="stat" style="color:var(--teal);">43% of casual rides on weekends</div>
+      <p>43% of casual rides fall on Saturday–Sunday vs only 25% for members. Casual riders are fundamentally weekend-first users.</p>
+    </div>
+    <div class="insight-card" style="border-left-color:#9333EA;">
+      <div class="icon-row"><span class="ico">🕐</span><h3>Commuter vs Leisure Pattern</h3></div>
+      <div class="stat" style="color:#9333EA;">8AM & 5PM vs 2–5PM peak</div>
+      <p>Members spike at 8AM and 5PM — unmistakable commute signature. Casual riders ramp gradually, peaking in the mid-afternoon.</p>
+    </div>
+    <div class="insight-card" style="border-left-color:#059669;">
+      <div class="icon-row"><span class="ico">📍</span><h3>Leisure Station Hotspots</h3></div>
+      <div class="stat" style="color:#059669;">76–78% casual at top stations</div>
+      <p>Streeter Dr & Grand Ave and DuSable Lake Shore Dr are 76–78% casual — tourist & lakefront corridors, not commuter hubs.</p>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- SECTION 4: RECOMMENDATIONS -->
+<section id="recommendations" style="background:var(--off); max-width:100%; padding:4.5rem 2rem;">
+<div style="max-width:1100px; margin:0 auto;">
+  <div class="section-tag"><span></span> 04 <span></span></div>
+  <h2 class="section-title">Business Recommendations</h2>
+  <p style="color:var(--gray); margin-bottom:0.5rem;">4 Actions to Convert Casual → Member</p>
+  <div class="section-divider" style="background:var(--gold);"></div>
+
+  <div class="grid-2">
+    <div class="rec-card">
+      <div class="rec-header" style="background:#EFF6FF;">
+        <div class="rec-num" style="background:var(--blue);">01</div>
+        <h3>Weekend Membership Campaign</h3>
+      </div>
+      <div class="rec-basis" style="color:var(--blue);">Based on: 43% of casual rides on weekends</div>
+      <div class="rec-body">Launch a targeted Sat/Sun campaign offering a discounted first month of annual membership to casual riders with 3+ rides in a month.
+        <div class="rec-impact"><strong>Expected impact:</strong> Targets casual riders at their highest engagement moment — the start of a weekend ride.</div>
+      </div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-header" style="background:#F0FDFA;">
+        <div class="rec-num" style="background:var(--teal);">02</div>
+        <h3>Afternoon In-App Nudge</h3>
+      </div>
+      <div class="rec-basis" style="color:var(--teal);">Based on: Casual peak 2–5PM on weekends</div>
+      <div class="rec-body">At 1:30PM on weekends, push a personalised cost comparison: "You've spent $X on day passes. A membership would save $Y."
+        <div class="rec-impact"><strong>Expected impact:</strong> Reaches casual riders 30 minutes before peak usage — when conversion intent is highest.</div>
+      </div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-header" style="background:#FAF5FF;">
+        <div class="rec-num" style="background:#9333EA;">03</div>
+        <h3>Long-Ride Loyalty Program</h3>
+      </div>
+      <div class="rec-basis" style="color:#9333EA;">Based on: Casual rides avg 2× longer</div>
+      <div class="rec-body">After 5 rides exceeding 20 minutes in 30 days, trigger a one-click 20%-off membership upgrade offer.
+        <div class="rec-impact"><strong>Expected impact:</strong> Identifies the most conversion-ready casual users based on demonstrated behaviour.</div>
+      </div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-header" style="background:#F0FDF4;">
+        <div class="rec-num" style="background:#059669;">04</div>
+        <h3>Station-Level QR Marketing</h3>
+      </div>
+      <div class="rec-basis" style="color:#059669;">Based on: 76–78% casual at top stations</div>
+      <div class="rec-body">Install membership sign-up QR codes at Streeter Dr, DuSable Lake Shore Dr, and Michigan Ave docks with a clear value prop.
+        <div class="rec-impact"><strong>Expected impact:</strong> Physical touchpoint at locations where casual-to-member conversion is most likely.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div style="font-size:1.8rem; margin-bottom:0.5rem;">🚲</div>
+  <p><strong>Cyclistic Bike Share Analysis</strong> · April 2024</p>
+  <p style="margin-top:0.4rem;">Portfolio Project · Business Analyst · Python · SQL · Power BI · Excel</p>
+  <p style="margin-top:1rem; font-size:0.78rem; color:#4A5568;">Data source: Divvy Bike Sharing via Kaggle · Motivate International Inc.</p>
+</footer>
+
+</body>
+</html>
