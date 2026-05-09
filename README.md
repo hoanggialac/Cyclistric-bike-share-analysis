@@ -97,10 +97,10 @@ Insights — Duration distribution, bike preference, conversion funnel
 
 → View Dashboard (link to be added)
 
-🚀 How to Reproduce
-bash# 1. Clone the repo
-git clone https://github.com/hoanggialac/cyclistic-bike-share-analysis.git
-cd cyclistic-bike-share-analysis
+📊 Live Dashboard
+
+🔗 View Interactive Dashboard:
+https://hoanggialac.github.io/Cyclistric-bike-share-analysis/
 
 # 2. Install dependencies
 pip install pandas numpy matplotlib seaborn
